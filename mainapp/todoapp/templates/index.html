@@ -3,9 +3,74 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Todo App</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+      body {
+        max-width: 800px;
+        font-family: Arial, sans-serif;
+        margin: 20px auto;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      h1 {
+        color: #333;
+      }
+      form {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      input[type='text'],
+      textarea {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: none;
+      }
+      textarea {
+        resize: vertical; /* Allows vertical resize only */
+        height: 100px; /* Initial height */
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #5cb85c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        align-self: flex-start; /* Align button to the start of the flex container */
+      }
+      button:hover {
+        background-color: #449d44;
+      }
+      #todo-list div {
+        background-color: white;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+      }
+      .tag {
+        background-color: #84bc84;
+        border-radius: 15px;
+        padding: 1px 5px;
+      }
+    </style>
   </head>
   <body>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <h1>Todo App</h1>
+
+    <!-- Add Todo Form -->
+    <form hx-post="/todos/" hx-target="#todo-list" hx-swap="beforeend">
+      <input type="text" name="title" placeholder="Title" required />
+      <textarea name="description" placeholder="Description"></textarea>
+      <button type="submit">Add</button>
+    </form>
+
+    <!-- Todo List -->
+    <div id="todo-list" hx-get="/todos/" hx-trigger="load">
+      <!-- Todo items will be fetched and listed here -->
+    </div>
   </body>
 </html>
