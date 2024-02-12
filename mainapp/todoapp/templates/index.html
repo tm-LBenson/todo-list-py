@@ -30,17 +30,18 @@
         box-shadow: none;
       }
       textarea {
-        resize: vertical; /* Allows vertical resize only */
-        height: 100px; /* Initial height */
+        resize: vertical;
+        height: 100px;
       }
       button {
+        margin-bottom: 10px;
         padding: 10px 20px;
         background-color: #5cb85c;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        align-self: flex-start; /* Align button to the start of the flex container */
+        align-self: flex-start;
       }
       button:hover {
         background-color: #449d44;
@@ -55,6 +56,28 @@
         background-color: #84bc84;
         border-radius: 15px;
         padding: 1px 5px;
+      }
+    </style>
+    <style>
+      #modalOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+      }
+
+      #editModal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        padding: 20px 40px 20px 20px;
+        background: white;
+        z-index: 2;
       }
     </style>
   </head>
@@ -72,5 +95,8 @@
     <div id="todo-list" hx-get="/todos/" hx-trigger="load">
       <!-- Todo items will be fetched and listed here -->
     </div>
+
+    <!-- Edit Todo Modal -->
+    <div style="display: none" id="editModal"></div>
   </body>
 </html>
