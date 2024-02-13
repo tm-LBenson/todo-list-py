@@ -1,15 +1,52 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from .models import Todo
 from .serializers import TodoSerializer
 from django.shortcuts import get_object_or_404
+from django.views import View
+from django.middleware.csrf import get_token
 
 def home(request):
     return render(request, 'index.html')
+from django.http import HttpResponse
+from django.middleware.csrf import get_token
 
+
+
+def update_todo(request, id):
+    todo = get_object_or_404(Todo, pk=id)
+    serializer = TodoSerializer(todo, data=request.POST)
+    if serializer.is_valid():
+        saved_todo = serializer.save()
+        return HttpResponse(generate_todo_html(saved_todo))
+    return HttpResponse(serializer.errors, status=400)
+
+def list_todos(request):
+    if request.method == 'GET':
+        todos = Todo.objects.all()
+        items_html = ''.join([generate_todo_html(todo) for todo in todos])
+        return HttpResponse(items_html)
+
+def create_todo(request):
+    if request.method == 'POST':
+        serializer = TodoSerializer(data=request.POST)
+        if serializer.is_valid():
+            saved_todo = serializer.save()
+            return HttpResponse(generate_todo_html(saved_todo), status=201)
+        else:
+            return HttpResponse(serializer.errors, status=400)
+
+def todo_detail(request, id):
+    if request.method == 'GET':
+        todo = get_object_or_404(Todo, pk=id)
+        return HttpResponse(generate_todo_html(todo))
+
+def delete_todo(request, id):
+    if request.method == 'DELETE':
+        todo = get_object_or_404(Todo, pk=id)
+        todo.delete()
+        return HttpResponse(status=204)
+    
 def generate_todo_html(todo):
     return f"""
     <div id="todo-{todo.id}">
@@ -20,49 +57,14 @@ def generate_todo_html(todo):
     </div>
     """
 
-
-class TodoView(APIView):
-    def get(self, request, format=None):
-        todos = Todo.objects.all()
-
-        items_html = ''.join([generate_todo_html(todo) for todo in todos])
-        return HttpResponse(items_html)
-
-    def post(self, request, format=None):
-        serializer = TodoSerializer(data=request.data)
-        if serializer.is_valid():
-            saved_todo = serializer.save()
-
-            return HttpResponse(generate_todo_html(saved_todo), status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class TodoDetailView(APIView):
-    def get_object(self, id):
-        try:
-            return Todo.objects.get(id=id)
-        except Todo.DoesNotExist:
-            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, id, format=None):
-        todo = self.get_object(id)
-        serializer = TodoSerializer(todo, data=request.data)
-        if serializer.is_valid():
-            saved_todo = serializer.save()
-            return HttpResponse(generate_todo_html(saved_todo))
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, id, format=None):
-        todo = self.get_object(id)
-        todo.delete()
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
-    
 def edit_todo_form(request, id):
     todo = get_object_or_404(Todo, pk=id)
-
+    csrf_token = get_token(request)
     form_html = f"""
     <div id="modalOverlay"></div>
     <div id="editModal">
         <form hx-post="/todos/{todo.id}/update" hx-target="#todo-{todo.id}" hx-swap="outerHTML">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}" />
             <input type="text" name="title" value="{todo.title}" required />
             <textarea name="description">{todo.description}</textarea>
             <button type="submit">Save Changes</button>
