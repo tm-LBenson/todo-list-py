@@ -11,7 +11,11 @@ def home(request):
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
 
+def close_model(request):
+    return HttpResponse('<div hx-trigger="load" hx-target="#modalOverlay" hx-swap="outerHTML" hx-get="todos/close-overlay" style="display: none" id="editModal"></div>')
 
+def remove_overlay(request):
+    return HttpResponse("<div></div>")
 
 def update_todo(request, id):
     todo = get_object_or_404(Todo, pk=id)
@@ -67,8 +71,8 @@ def edit_todo_form(request, id):
             <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}" />
             <input type="text" name="title" value="{todo.title}" required />
             <textarea name="description">{todo.description}</textarea>
-            <button type="submit">Save Changes</button>
-        <button hx-get="/todos/{todo.id}/cancel_edit" hx-target="#editModal">Close</button>
+            <button hx-target="#editModal" hx-swap="outerHTML" type="submit">Save Changes</button>
+        <button hx-swap="outerHTML" hx-get="/todos/cancel_edit" hx-target="#editModal">Close</button>
         </form>
     </div>
     """
