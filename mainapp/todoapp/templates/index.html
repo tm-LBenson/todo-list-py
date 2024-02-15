@@ -85,9 +85,25 @@
   <body>
     <h1>Todo App</h1>
     <!-- Add Todo Form -->
-    <form hx-post="/todos/" hx-target="#todo-list" hx-swap="beforeend">
-      <input type="text" name="title" placeholder="Title" required />
-      <textarea name="description" placeholder="Description"></textarea>
+    <form
+      id="addTodoForm"
+      hx-post="/todos/create"
+      hx-target="#todo-list"
+      hx-swap="beforeend"
+    >
+      <div
+        id="self"
+        hx-target="#self"
+        hx-trigger="load"
+        hx-get="/todos/get-token"
+        hx-swap="outerHTML"
+      ></div>
+      <input id="title" type="text" name="title" placeholder="Title" required />
+      <textarea
+        id="description"
+        name="description"
+        placeholder="Description"
+      ></textarea>
       <button type="submit">Add</button>
     </form>
 
